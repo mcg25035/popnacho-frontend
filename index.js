@@ -6,6 +6,10 @@ var main = ()=>{
     var popSounds = [];
     var hmmSounds = [];
 
+    var mobile   = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent); 
+    var start = mobile ? "touchstart" : "mousedown";
+    var end = mobile ? "touchend" : "mouseup";
+
     for (var i = 1; i <= 5; i++) {
         var popSound = new Audio(`resources/pop${i}.mp3`);
         popSounds.push(popSound);
@@ -38,7 +42,7 @@ var main = ()=>{
 
     loadCookie();
 
-    document.addEventListener('mousedown', function(event) {
+    document.addEventListener(start, function(event) {
         character.classList.remove("nacho-close");
         character.classList.add("nacho-open");
         countNumber++;
@@ -54,7 +58,7 @@ var main = ()=>{
 
     }); 
     
-    document.addEventListener('mouseup', function(event) {
+    document.addEventListener(end, function(event) {
         character.classList.remove("nacho-open");
         character.classList.add("nacho-close");
 
