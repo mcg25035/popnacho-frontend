@@ -1,4 +1,4 @@
-var main = ()=>{
+var main = () => {
     var character = document.getElementsByClassName('character')[0];
     var count = document.getElementsByClassName('count')[0];
     var countNumber = 0;
@@ -6,7 +6,7 @@ var main = ()=>{
     var popSounds = [];
     var hmmSounds = [];
 
-    var mobile   = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent); 
+    var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
     var start = mobile ? "touchstart" : "mousedown";
     var end = mobile ? "touchend" : "mouseup";
 
@@ -18,21 +18,21 @@ var main = ()=>{
         hmmSounds.push(hmmSound);
     }
 
-    var playRandomPopSound = ()=>{
+    var playRandomPopSound = () => {
         var randomIndex = Math.floor(Math.random() * popSounds.length);
         popSounds[randomIndex].play();
     };
 
-    var playRandomHmmSound = ()=>{
+    var playRandomHmmSound = () => {
         var randomIndex = Math.floor(Math.random() * hmmSounds.length);
         hmmSounds[randomIndex].play();
     };
-    
-    var updateCount = ()=>{
+
+    var updateCount = () => {
         count.innerHTML = countNumber;
     };
 
-    var loadCookie = ()=>{
+    var loadCookie = () => {
         var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)count\s*\=\s*([^;]*).*$)|^.*$/, "$1");
         if (cookieValue) {
             countNumber = parseInt(cookieValue);
@@ -42,7 +42,7 @@ var main = ()=>{
 
     loadCookie();
 
-    document.addEventListener(start, function(event) {
+    document.addEventListener(start, function (event) {
         character.classList.remove("nacho-close");
         character.classList.add("nacho-open");
         countNumber++;
@@ -53,12 +53,15 @@ var main = ()=>{
             playRandomHmmSound();
         }
         if (countNumber % 10 === 0) {
-            document.cookie = `count=${countNumber}`;
+            const expirationDate = new Date();
+            expirationDate.setFullYear(expirationDate.getFullYear() + 100); // Set expiration 100 years from now
+
+            document.cookie = `count=${countNumber}; expires=${expirationDate.toUTCString()}; path=/`;
         }
 
-    }); 
-    
-    document.addEventListener(end, function(event) {
+    });
+
+    document.addEventListener(end, function (event) {
         character.classList.remove("nacho-open");
         character.classList.add("nacho-close");
 
