@@ -24,9 +24,11 @@ div.number {
 p {
     font-size: 12vh;
     font-family: Nunito,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
-    user-select: none;
     font-weight: bold;
     color: white;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
     -webkit-text-stroke: 2px;
     -webkit-text-stroke-color: rgb(29, 47, 69);
 }
@@ -44,4 +46,7 @@ div.nacho-open {
 div.nacho-close {
     background-image: url('resources/nacho-close.png');
     background-size: cover;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
 }
