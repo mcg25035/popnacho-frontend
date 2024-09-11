@@ -114,6 +114,7 @@ function initialize(clickCount, setClickCount, nacho) {
 
 export default function PopNachoPage() {
     var [clickCount, setClickCount] = useState(0);
+    var [uidView, setUidView] = useState("");
     var initialized = useRef(false);
 
     var nacho = useRef();
@@ -126,6 +127,9 @@ export default function PopNachoPage() {
 
     return (
         <>
+            <p className={styles['user-info-uid']}>
+                {`UID : ${uidView}`}
+            </p>
             <div className={styles['number-container']}>
                 <p className={styles['click-count']}>
                     {clickCount}

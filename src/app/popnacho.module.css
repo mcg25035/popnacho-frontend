@@ -23,6 +23,12 @@
     height: 60%;
 }
 
+.user-info-uid {
+    font-size: 2vh;
+    font-family: 'Noto Sans';
+    color: white;
+}
+
 .nacho {
     aspect-ratio: 224/294; 
 }

@@ -5,6 +5,8 @@ import PopNachoPage from "./popnacho";
 
 export default function Home() {
     return (
-        <PopNachoPage />
+        <>
+            <PopNachoPage />
+        </>
     );
 }
