@@ -38,6 +38,19 @@ export class accountApi{
     }
 
     /**
+     * @throws {NetworkException}
+     * @returns {void}
+     */
+    static async keepSessionAlive() {
+        if (await this.checkSession()) {
+            return;
+        }
+        if (await this.authSession()) {
+            return;
+        }
+    }
+
+    /**
      *  @throws {NetworkException}
      *  @returns {boolean}
      */
