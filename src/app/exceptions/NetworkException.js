@@ -1,6 +1,6 @@
 class NetworkException extends Error {
     constructor(message) {
-      super(message);
-      this.name = 'NetworkException';
+        super(message);
+        this.name = 'NetworkException';
     }
-  }
+}

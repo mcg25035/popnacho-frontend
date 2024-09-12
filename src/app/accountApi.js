@@ -42,10 +42,12 @@ export class accountApi{
      * @returns {void}
      */
     static async keepSessionAlive() {
+        accountApi.sessionAuthed = false;
         if (await this.checkSession()) {
             return;
         }
         if (await this.authSession()) {
+            accountApi.sessionAuthed = true;
             return;
         }
     }
@@ -82,6 +84,16 @@ export class accountApi{
             await this.initNewUeser();
         }
         this.syncFromLocalStorage();
+
+        await this.keepSessionAlive();
+        if (!accountApi.sessionAuthed) {
+            await this.initNewUeser();
+            await this.keepSessionAlive();
+        }
+        
+        if (!accountApi.sessionAuthed) {
+            throw new ServiceException("Backend serivce has some problem, failed to auth session");
+        }
 
         
 
