@@ -1,20 +1,25 @@
 import axios from "axios";
+import { ServiceException } from "./exceptions/ServiceException";
+import { NetworkException } from "./exceptions/NetworkException";
 
-export class accountApi{
+
+const apiPath = "http://localhost:8080"
+
+export class AccountApi{
     static uid;
     static loginToken;
     static sessionAuthed = false;
 
     /** @returns {void} */
     static syncToLocalStorage() {
-        localStorage.setItem("uid", this.uid);
-        localStorage.setItem("loginToken", this.loginToken);
+        localStorage.setItem("uid", AccountApi.uid);
+        localStorage.setItem("loginToken", AccountApi.loginToken);
     }
 
     /** @returns {void} */
     static syncFromLocalStorage() {
-        this.uid = localStorage.getItem("uid");
-        this.loginToken = localStorage.getItem("loginToken");
+        AccountApi.uid = localStorage.getItem("uid");
+        AccountApi.loginToken = localStorage.getItem("loginToken");
     }
 
     /** @returns {boolean} */
@@ -27,14 +32,14 @@ export class accountApi{
      *  @returns {void}
      */
     static async initNewUeser() {
-        var res = await axios.post("/api/user");
+        var res = await axios.post(`${apiPath}/user`);
         if (res.status != 200) {
             throw new NetworkException(`Failed to create new user, network error ${res.status}`);
         }
         var data = res.data;
-        this.uid = data.uid;
-        this.loginToken = data.login_token;
-        accountApi.syncToLocalStorage();
+        AccountApi.uid = data.uid;
+        AccountApi.loginToken = data.login_token;
+        AccountApi.syncToLocalStorage();
     }
 
     /**
@@ -42,12 +47,13 @@ export class accountApi{
      * @returns {void}
      */
     static async keepSessionAlive() {
-        accountApi.sessionAuthed = false;
-        if (await this.checkSession()) {
+        AccountApi.sessionAuthed = false;
+        if (await AccountApi.checkSession()) {
+            AccountApi.sessionAuthed = true;
             return;
         }
-        if (await this.authSession()) {
-            accountApi.sessionAuthed = true;
+        if (await AccountApi.authSession()) {
+            AccountApi.sessionAuthed = true;
             return;
         }
     }
@@ -57,7 +63,7 @@ export class accountApi{
      *  @returns {boolean}
      */
     static async checkSession() {
-        var res = await axios.get("/api/session");
+        var res = await axios.get(`${apiPath}/session`);
         if (res.status == 200) return true;
         if (res.status == 401) return false;
         throw new NetworkException(`Failed to check session, network error ${res.status}`);
@@ -68,9 +74,9 @@ export class accountApi{
      *  @returns {boolean} 
      */
     static async authSession() {
-        var res = await axios.put("/api/session", {
-            uid: this.uid,
-            login_token: this.loginToken
+        var res = await axios.put(`${apiPath}/session`, {
+            uid: AccountApi.uid,
+            login_token: AccountApi.loginToken
         });
         if (res.status == 200) return true;
         if (res.status == 401) return false;
@@ -79,23 +85,21 @@ export class accountApi{
 
     static async init() {
         axios.defaults.withCredentials = true;
+        axios.defaults.validateStatus = () => true;
 
-        if (!this.isLocalStorageLoggedIn()) {
-            await this.initNewUeser();
+        if (!AccountApi.isLocalStorageLoggedIn()) {
+            await AccountApi.initNewUeser();
         }
-        this.syncFromLocalStorage();
+        AccountApi.syncFromLocalStorage();
 
-        await this.keepSessionAlive();
-        if (!accountApi.sessionAuthed) {
-            await this.initNewUeser();
-            await this.keepSessionAlive();
+        await AccountApi.keepSessionAlive();
+        if (!AccountApi.sessionAuthed) {
+            await AccountApi.initNewUeser();
+            await AccountApi.keepSessionAlive();
         }
-        
-        if (!accountApi.sessionAuthed) {
+
+        if (!AccountApi.sessionAuthed) {
             throw new ServiceException("Backend serivce has some problem, failed to auth session");
         }
-
-        
-
     }
 }
