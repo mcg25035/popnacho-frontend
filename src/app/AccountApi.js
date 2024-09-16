@@ -1,6 +1,7 @@
 import axios from "axios";
 import { ServiceException } from "./exceptions/ServiceException";
 import { NetworkException } from "./exceptions/NetworkException";
+import { TransferException } from "./exceptions/TransferException";
 
 
 const apiPath = "http://localhost:8080"
@@ -83,15 +84,50 @@ export class AccountApi{
         throw new NetworkException(`Failed to auth session, network error ${res.status}`);
     }
 
-    static async init() {
-        axios.defaults.withCredentials = true;
-        axios.defaults.validateStatus = () => true;
-
-        if (!AccountApi.isLocalStorageLoggedIn()) {
-            await AccountApi.initNewUeser();
+    static async getTransferId() {
+        await AccountApi.keepSessionAlive();
+        var res = await axios.get(`${apiPath}/transfer_id`);
+        if (res.status != 200) {
+            throw new NetworkException(`Failed to get transfer id, network error ${res.status}`);
         }
-        AccountApi.syncFromLocalStorage();
+        return res.data.transfer_id;
+    }
 
+    /**
+     * @typedef {Object} TransferUserResponse
+     * @property {String} uid
+     * @property {String} loginToken
+     */
+
+    /**
+     * @param {String} uid 
+     * @param {String} transferId 
+     * @returns {TransferUserResponse}
+     */
+    static async transferUser(uid, transferId) {
+        await AccountApi.keepSessionAlive();
+        var res = await axios.put(`${apiPath}/user`, {
+            uid: uid,
+            transfer_id: transferId
+        });
+        if (res.status == 400) throw new TransferException(res.data.error); 
+        if (res.status != 200) {
+            throw new NetworkException(`Failed to transfer user, network error ${res.status}`);
+        }
+
+        AccountApi.uid = uid;
+        AccountApi.loginToken = res.data.token;
+        AccountApi.syncToLocalStorage();
+
+        AccountApi.initSession();
+
+        return {
+            uid: AccountApi.uid,
+            loginToken: AccountApi.loginToken
+        }
+    }
+
+    static async initSession() {
         await AccountApi.keepSessionAlive();
         if (!AccountApi.sessionAuthed) {
             await AccountApi.initNewUeser();
@@ -101,5 +137,17 @@ export class AccountApi{
         if (!AccountApi.sessionAuthed) {
             throw new ServiceException("Backend serivce has some problem, failed to auth session");
         }
+    }
+
+    static async init() {
+        axios.defaults.withCredentials = true;
+        axios.defaults.validateStatus = () => true;
+
+        if (!AccountApi.isLocalStorageLoggedIn()) {
+            await AccountApi.initNewUeser();
+        }
+        AccountApi.syncFromLocalStorage();
+
+        await AccountApi.initSession();
     }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./popnacho.module.css";
 import { AccountApi } from "./AccountApi";
+import TransferPrompt from "./transferPrompt";
 
 /**
  * @param {Number} clickCount 
@@ -59,7 +60,8 @@ class TransferIdManager {
 
     /** @private */
     async generate() {
-        this.setTransferId("awa")
+        var transferId = await AccountApi.getTransferId();
+        this.setTransferId(transferId);
     }
 
     /** @param {import("react").SyntheticEvent} event */
@@ -68,17 +70,13 @@ class TransferIdManager {
         this.generate();
     }
 }
-function generateTransferId(setTransferIdButtonShow, setTransferId) {
-    (async function(){
-        setTransferIdButtonShow(true);
-    })()
-}
 
 export default function PopNachoPage() {
     var [clickCount, setClickCount] = useState(0);
     var [uidView, setUidView] = useState("");
-    var [transferIdButtonShow, setTransferIdButtonShow] = useState(true);
     var [transferId, setTransferId] = useState("generating...");
+    var [transferIdButtonShow, setTransferIdButtonShow] = useState(true);
+    var [transferPromptShow, setTransferPromptShow] = useState(false);
     var initialized = useRef(false);
     var tim = new TransferIdManager(setTransferIdButtonShow, setTransferId);
 
@@ -99,6 +97,21 @@ export default function PopNachoPage() {
         fetchUidTask();
     }, [])
 
+    function toggleTransferPrompt() {
+        setTransferPromptShow(!transferPromptShow);
+    }
+
+    /**
+     * @param {String} uid 
+     * @param {String} transferId 
+     */
+    async function transfer(uid, transferId) {
+        var transferResult = await AccountApi.transferUser(uid, transferId);
+        setTransferIdButtonShow(true);
+        setUidView(transferResult.uid);
+        setTransferPromptShow(false);
+    }
+
     return (
         <>
             <p ref={dataView} className={styles['user-data']}>
@@ -106,9 +119,13 @@ export default function PopNachoPage() {
                 {'Transfer ID : '}
                 {transferIdButtonShow && 
                  <button onClick={tim.generateTrigger.bind(tim)} className={styles['generate-transfer-id']}>
-                    Generate
+                    Show
                  </button>}
-                {!transferIdButtonShow && transferId}
+                {!transferIdButtonShow && transferId}<br />
+                <button onClick={toggleTransferPrompt} className={styles['accept-transfer-button']}>
+                    Transfer {transferPromptShow ? "▲" : "▼"}
+                </button>
+                {transferPromptShow && <TransferPrompt acceptCallback={transfer} />}
             </p>
             <div className={styles['number-container']}>
                 <p className={styles['click-count']}>

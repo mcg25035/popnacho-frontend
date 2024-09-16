@@ -1,0 +1,43 @@
+.input {
+    border: 1px solid #ccc;
+    background-color: rgba(255, 255, 255, 0);
+    border: white 1px solid;
+    border-radius: 6px;
+    color: #fff;
+    transition: background-color 0.2s;
+    outline: none;
+}
+
+.input::placeholder {
+    color: #fff;
+    transition: color 0.2s;
+}
+
+.input:focus::placeholder {
+    color: #000;
+    transition: color 0.2s;
+}
+
+.input:focus {
+    border: 1px solid #ccc;
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.accept-button {
+    width: 100%;
+    border: white 1px solid;
+    border-radius: 6px;
+    background: linear-gradient(60deg, rgb(0, 0, 0, 0.2), rgb(255, 255, 255, 0.2));
+    color: #fff;
+    cursor: pointer;
+}
+
+.div {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

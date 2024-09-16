@@ -39,7 +39,24 @@
 
 .generate-transfer-id:hover {
     background: linear-gradient(40deg, rgb(0, 0, 0, 0.4), rgb(255, 255, 255, 0.4));
-    
+}
+
+.accept-transfer-button {
+    width: fit-content;
+    height: 10%;
+    font-size: 2vh;
+    font-family: 'Noto Sans';
+    border: white 1px solid;
+    color: white;
+    border-radius: 6px;
+    background: linear-gradient(60deg, rgb(0, 0, 0, 0.2), rgb(255, 255, 255, 0.2));
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.accept-transfer-button:hover {
+    background: linear-gradient(40deg, rgb(0, 0, 0, 0.4), rgb(255, 255, 255, 0.4));
 }
 
 .user-data {
@@ -50,6 +67,10 @@
     white-space: nowrap;
     -webkit-user-select: text;
     color: white;
+    position: absolute;
+    margin-top: 1.2vh;
+    left: 1.2vh;
+    top: 0;
 }
 
 .nacho {
