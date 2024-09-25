@@ -93,6 +93,8 @@ export default function PopNachoPage() {
         var fetchUidTask = async () => {
             await AccountApi.init();
             setUidView(AccountApi.uid);
+            var count = await AccountApi.getClickCount();
+            console.log(count);
         }
         fetchUidTask();
     }, [])

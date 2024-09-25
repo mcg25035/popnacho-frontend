@@ -93,6 +93,15 @@ export class AccountApi{
         return res.data.transfer_id;
     }
 
+    static async getClickCount() {
+        await AccountApi.keepSessionAlive();
+        var res = await axios.get(`${apiPath}/click`);
+        if (res.status != 200) {
+            throw new NetworkException(`Failed to get click count, network error ${res.status}`);
+        }
+        return res.data.clicks;
+    }
+
     /**
      * @typedef {Object} TransferUserResponse
      * @property {String} uid
