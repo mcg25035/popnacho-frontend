@@ -3,38 +3,39 @@ import styles from "./popnacho.module.css";
 import { AccountApi } from "./AccountApi";
 import TransferPrompt from "./transferPrompt";
 
+var countGlobal;
+
 /**
- * @param {Number} clickCount 
  * @param {Function} setClickCount 
  * @param {MutableRefObject<HTMLElement>} nacho
  * @param {MutableRefObject<HTMLParagraphElement>} dataView
  */
-function initialize(clickCount, setClickCount, nacho, dataView) {
+function initialize(setClickCount, nacho, dataView) {
     var sound = new Sound();
     var nacho = new Nacho(nacho);
 
     var count = Utils.cookieLoadCount();
     if (count > 0) {
         setClickCount(count);
-        clickCount = count;
     }
 
     var start = Utils.isMobile() ? "touchstart" : "mousedown";
     var end = Utils.isMobile() ? "touchend" : "mouseup";
 
-    document.addEventListener(start, function (event) {
+    document.addEventListener(start, async function (event) {
         /** @type {HTMLParagraphElement} */
         var dataViewElement = dataView.current;
         if (dataViewElement.contains(event.target)) return;
 
         nacho.open();
         sound.playPop();
-        setClickCount(++clickCount);
-        if (clickCount % 100 == 0) {
+        setClickCount(++countGlobal);
+        console.log("add click");
+        if (countGlobal % 100 == 0) {
             sound.playHmm();
         }
-        if (clickCount % 10 === 0) {
-            Utils.cookieSaveCount(clickCount);
+        if (countGlobal % 10 === 0) {
+            await AccountApi.addClick(10);
         }
 
     });
@@ -86,7 +87,7 @@ export default function PopNachoPage() {
     useEffect(() => {
         if (initialized.current) return;
         initialized.current = true;
-        initialize(clickCount, setClickCount, nacho, dataView);
+        initialize(setClickCount, nacho, dataView);
     }, []);
 
     useEffect(() => {
@@ -94,10 +95,24 @@ export default function PopNachoPage() {
             await AccountApi.init();
             setUidView(AccountApi.uid);
             var count = await AccountApi.getClickCount();
-            console.log(count);
+            if (count != 0) {
+                setClickCount(count);
+                return;
+            }
+            
+            var countFromCookie = Utils.cookieLoadCount();
+            if (countFromCookie == 0) return;
+
+            await AccountApi.addClick(countFromCookie);
+            Utils.cookieSaveCount(0);
         }
         fetchUidTask();
     }, [])
+
+    useEffect(() => {
+        countGlobal = clickCount;
+    }, [clickCount]);
+        
 
     function toggleTransferPrompt() {
         setTransferPromptShow(!transferPromptShow);

@@ -103,6 +103,20 @@ export class AccountApi{
     }
 
     /**
+     * @param {Number} count
+     */
+    static async addClick(count) {
+        await AccountApi.keepSessionAlive();
+        var res = await axios.put(`${apiPath}/click`, {
+            count: count
+        });
+        if (res.status != 200) {
+            throw new NetworkException(`Failed to add click, network error ${res.status}`);
+        }
+        return;
+    }
+
+    /**
      * @typedef {Object} TransferUserResponse
      * @property {String} uid
      * @property {String} loginToken
@@ -128,7 +142,7 @@ export class AccountApi{
         AccountApi.loginToken = res.data.token;
         AccountApi.syncToLocalStorage();
 
-        AccountApi.initSession();
+        await AccountApi.initSession();
 
         return {
             uid: AccountApi.uid,
